@@ -38,7 +38,7 @@ def language_stats(languages, data, periods):
 def render_data(filename, yaml_data):
     """Display a streamgraph of the commit data."""
     data = pandas.read_csv(filename).as_matrix()
-    languages = {lang: 0 for lang in np.unique(data[:, LANG_INDEX])}
+    languages = np.unique(data[:, LANG_INDEX])
 
     time = np.arange(
         np.min(data[:, TIME_INDEX]),

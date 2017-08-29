@@ -1,13 +1,13 @@
 Language Usage Visualization
 ===
 
-Visualize a user's commits as a stacked line graph per each language.
+Visualize a user's commits as a stacked area graph per each language.
 
 ![Example](example.png)
 
 ### Running
 
-First install the required packages for the Python and Ruby components.
+First install the required packages for the Python and Ruby components (as detailed in Gemfile and requirements.txt).
 
 Then execute the script:
 

@@ -53,3 +53,4 @@ build-iPhoneSimulator/
 .token
 Gemfile.lock
 data.csv
+.ruby-version
