@@ -52,12 +52,15 @@ end
 
 # Run through all commits available
 def analyze_commits(user, token)
-  client = Octokit::Client.new(access_token: token)
+  begin
+    client = Octokit::Client.new(access_token: token)
 
-  events = client.user_events(user)
-  events.
-    select { |event| event[:type] == 'PushEvent' }.
-    map { |event| event_stats(client, event) }
+    events = client.user_events(user)
+    events.
+      select { |event| event[:type] == 'PushEvent' }.
+      map { |event| event_stats(client, event) }
+  rescue Interrupt
+  end
 end
 
 Octokit.auto_paginate = true

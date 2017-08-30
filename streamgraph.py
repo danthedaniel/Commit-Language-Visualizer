@@ -36,7 +36,11 @@ def language_stats(colors, data, INTERVALs):
 
 def render_data(filename):
     """Display a streamgraph of the commit data."""
-    data = pandas.read_csv(filename).as_matrix()
+    try:
+        data = pandas.read_csv(filename).as_matrix()
+    except pandas.io.common.CParserError as e:
+        return
+
     colors = np.unique(data[:, COLOR_INDEX])
 
     time = np.arange(
