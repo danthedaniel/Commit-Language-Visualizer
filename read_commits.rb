@@ -17,35 +17,35 @@ end
 
 # Determine the language of a given file
 def get_lang(client, repo, file)
-  content = client.get file[:raw_url]
-  blob = VisBlob.new(file[:filename], content)
-  languages = client.languages(repo[:full_name]).to_h.keys.map do |lang|
-    Linguist::Language.find_by_name(lang.to_s)
-  end
+  blob = VisBlob.new(file.filename, '')
+  strategies = [
+    Linguist::Strategy::Modeline,
+    Linguist::Strategy::Filename,
+    Linguist::Strategy::Extension
+  ]
 
-  if languages.length > 0
-    begin
-      Linguist::Classifier.call(blob, languages).first
-    rescue NoMethodError
-    end
-  end
+  strategies.
+    map { |strat| strat.call(blob, nil) }.
+    flatten.
+    select { |language| not language.color.nil? }.
+    first
 end
 
 # Calculate stats for an event on the user's timeline
 def event_stats(client, event)
   repo = client.repository(event[:repo][:name])
-  event[:payload][:commits].map do |commit|
-    commit_stats(client, repo, commit, event[:created_at])
+  event[:payload][:commits].each do |commit|
+    commit_stats(client, repo, commit, event.created_at)
   end
 end
 
 # Calculate stats for a specific commit within an event
 def commit_stats(client, repo, commit, timestamp)
-  client.commit(repo[:full_name], commit[:sha])[:files].map do |file|
+  client.commit(repo.full_name, commit.sha).files.each do |file|
     lang = get_lang(client, repo, file)
 
     unless lang.nil?
-      puts [lang.name, timestamp.to_i, file[:changes]].join ','
+      puts [lang.color, timestamp.to_i, file.changes].join ','
     end
   end
 end

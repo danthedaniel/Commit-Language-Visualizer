@@ -1,5 +1,3 @@
-import requests
-import yaml
 import sys
 from collections import Counter
 
@@ -8,9 +6,9 @@ import pandas
 import matplotlib.pyplot as plt
 
 
-LANG_INDEX = 0
+COLOR_INDEX = 0
 TIME_INDEX = 1
-PERIOD = 60 * 60 * 24
+INTERVAL = 60 * 60 * 24
 
 
 def data_for_interval(data, start, interval):
@@ -20,40 +18,38 @@ def data_for_interval(data, start, interval):
     return data[mask]
 
 
-def languages_for_period(languages, data, period):
-    lang_data = data_for_interval(data, period, PERIOD)[:, LANG_INDEX]
-    counter = Counter(lang_data)
+def colors_for_interval(colors, data, start):
+    """Aggregate color data for an interval."""
+    colors_data = data_for_interval(data, start, INTERVAL)[:, COLOR_INDEX]
+    counter = Counter(colors_data)
 
-    return [counter.get(lang, 0) for lang in languages]
+    return [counter.get(color, 0) for color in colors]
 
 
-def language_stats(languages, data, periods):
+def language_stats(colors, data, INTERVALs):
     """Calculate a histogram for each language and each week."""
     return np.array([
-        languages_for_period(languages, data, period)
-        for period in periods
+        colors_for_interval(colors, data, INTERVAL)
+        for INTERVAL in INTERVALs
     ]).astype(np.float64).T
 
 
-def render_data(filename, yaml_data):
+def render_data(filename):
     """Display a streamgraph of the commit data."""
     data = pandas.read_csv(filename).as_matrix()
-    languages = np.unique(data[:, LANG_INDEX])
+    colors = np.unique(data[:, COLOR_INDEX])
 
     time = np.arange(
         np.min(data[:, TIME_INDEX]),
         np.max(data[:, TIME_INDEX]),
-        PERIOD
+        INTERVAL
     )
-    stats = language_stats(languages, data, time)
-    colors = [yaml_data[lang].get('color', '#EEEEEE') for lang in languages]
+    stats = language_stats(colors, data, time)
 
     fig, ax = plt.subplots()
     ax.stackplot(time, *stats, baseline='sym', colors=colors)
+    plt.axis('off')
     plt.show()
 
 
-yaml_url = 'https://raw.githubusercontent.com/github/linguist/master/lib/linguist/languages.yml'
-language_yaml = yaml.load(requests.get(yaml_url).content)
-
-render_data(sys.stdin, language_yaml)
+render_data(sys.stdin)
