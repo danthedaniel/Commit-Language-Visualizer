@@ -26,11 +26,11 @@ def colors_for_interval(colors, data, start):
     return [counter.get(color, 0) for color in colors]
 
 
-def language_stats(colors, data, INTERVALs):
+def language_stats(colors, data, intervals):
     """Calculate a histogram for each language and each week."""
     return np.array([
-        colors_for_interval(colors, data, INTERVAL)
-        for INTERVAL in INTERVALs
+        colors_for_interval(colors, data, start)
+        for start in intervals
     ]).astype(np.float64).T
 
 

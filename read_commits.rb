@@ -19,7 +19,6 @@ end
 def get_lang(client, repo, file)
   blob = VisBlob.new(file.filename, '')
   strategies = [
-    Linguist::Strategy::Modeline,
     Linguist::Strategy::Filename,
     Linguist::Strategy::Extension
   ]
